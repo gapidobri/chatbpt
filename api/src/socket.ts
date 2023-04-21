@@ -1,6 +1,6 @@
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { client, guild } from './discord.js';
+import { client, guild } from './discord';
 import { ChannelType } from 'discord.js';
 
 const httpServer = createServer();

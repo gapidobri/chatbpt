@@ -1,7 +1,7 @@
 import { Client, GatewayIntentBits, Guild, TextChannel } from 'discord.js';
 import { io } from './socket.js';
 
-const GUILD_ID = '1098950715268943872';
+const GUILD_ID = process.env.GUILD_ID ?? '';
 
 export const client = new Client({
   intents: [
