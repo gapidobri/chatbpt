@@ -43,7 +43,7 @@ io.on('connection', (socket) => {
           type: ChannelType.GuildText,
         });
 
-        channel?.setParent(process.env.CATEGORY_ID ?? '');
+        await channel?.setParent(process.env.CATEGORY_ID ?? '');
       }
       if (!channel || !channel.isTextBased()) return;
 
@@ -79,7 +79,9 @@ io.on('connection', (socket) => {
 
       await channel.setParent(process.env.CATEGORY_ID ?? '');
       await channel.send(message);
-      callback(channel.id);
+      if (callback) {
+        callback(channel.id);
+      }
     },
   );
 

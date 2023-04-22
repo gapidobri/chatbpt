@@ -25,7 +25,11 @@ client.on('messageCreate', (message) => {
   console.log('New discord message', message.content);
 
   const channel = message.channel;
-  if (!channel.isTextBased()) return;
+  if (
+    channel.type !== ChannelType.GuildText ||
+    channel.parentId !== process.env.CATEGORY_ID
+  )
+    return;
 
   const userId = Object.keys(userChatMap).find((id) =>
     userChatMap[id].has(channel.id),
