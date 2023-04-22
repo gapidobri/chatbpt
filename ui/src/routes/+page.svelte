@@ -6,7 +6,6 @@
 	function handleNewChat(e: CustomEvent<string>) {
 		const message = e.detail;
 		console.log('new chat', message);
-
 		createChat(message);
 	}
 </script>

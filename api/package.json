@@ -5,7 +5,8 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --exec 'node --experimental-specifier-resolution=node --loader ts-node/esm' src/index.ts"
+    "dev": "nodemon --exec 'node --experimental-specifier-resolution=node --loader ts-node/esm' src/index.ts",
+    "start": "node --experimental-specifier-resolution=node --loader ts-node/esm src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
   "dependencies": {
     "discord.js": "^14.9.0",
     "dotenv": "^16.0.3",
+    "moment": "^2.29.4",
     "socket.io": "^4.6.1"
   }
 }

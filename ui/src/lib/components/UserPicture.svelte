@@ -3,7 +3,7 @@
 </script>
 
 <img
-	alt="Your Mom"
+	alt="user"
 	src={user}
 	decoding="async"
 	data-nimg="intrinsic"

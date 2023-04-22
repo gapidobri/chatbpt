@@ -3,6 +3,9 @@ import { Server } from 'socket.io';
 import { client, guild } from './discord';
 import { ChannelType } from 'discord.js';
 
+const bannedUsers = ['8c5asbryd8gqrmjojqkg9i'];
+export const userChatMap: Record<string, Set<string>> = {};
+
 const httpServer = createServer();
 export const io = new Server(httpServer);
 
@@ -10,55 +13,63 @@ io.on('connection', (socket) => {
   let userId: string | null = null;
   console.log('New connection');
 
+  socket.on('userId', (id: string) => {
+    if (bannedUsers.includes(id)) {
+      socket.disconnect();
+      return;
+    }
+
+    console.log('New user', id);
+    socket.join(id);
+    userId = id;
+
+    if (!userChatMap[userId]) {
+      userChatMap[userId] = new Set();
+    }
+  });
+
   socket.on(
-    'userId',
-    (id: string, callback: (channelIds: string[]) => void) => {
-      console.log('New user', id);
-      socket.join(id);
-      userId = id;
+    'message',
+    async ({ chatId, content }, callback: (chatId: string) => void) => {
+      if (!content) return;
+      console.log('New message', content, chatId);
 
+      let channel = client.channels.cache.get(chatId);
+      if (!channel) {
+        const name = content.trim().toLowerCase().replaceAll(' ', '-');
+
+        channel = await guild?.channels.create({
+          name,
+          type: ChannelType.GuildText,
+        });
+
+        channel?.setParent(process.env.CATEGORY_ID ?? '');
+      }
+      if (!channel || !channel.isTextBased()) return;
+
+      if (userId) {
+        userChatMap[userId].add(channel.id);
+      }
+
+      if (content === '') {
+        content = 'Empty message';
+      }
+
+      channel.send(content);
       if (callback) {
-        const channels = guild?.channels.cache
-          .filter((c) => c.parent?.name === id)
-          .map((c) => c.id);
-
-        if (channels) {
-          callback(channels);
-        }
+        callback(channel.id);
       }
     },
   );
-
-  socket.on('message', ({ chatId, content }) => {
-    console.log('New message', content, chatId);
-
-    const channel = client.channels.cache.get(chatId);
-    if (!channel || !channel.isTextBased()) return;
-
-    if (content === '') {
-      content = 'Empty message';
-    }
-
-    channel.send(content);
-  });
 
   socket.on(
     'create',
     async (message: string, callback: (id: string) => void) => {
       if (!userId) return;
-      console.log('New tab created', message);
+      console.log('New chat created', message);
       if (message === '') message = 'Untitled';
 
       const name = message.trim().toLowerCase().replaceAll(' ', '-');
-
-      let category = guild?.channels.cache.find((c) => c.name === userId);
-      if (!category) {
-        category = await guild?.channels.create({
-          type: ChannelType.GuildCategory,
-          name: userId,
-        });
-        if (!category) return;
-      }
 
       const channel = await guild?.channels.create({
         name,
@@ -66,16 +77,11 @@ io.on('connection', (socket) => {
       });
       if (!channel) return;
 
-      await channel.setParent(category.id);
+      await channel.setParent(process.env.CATEGORY_ID ?? '');
       await channel.send(message);
       callback(channel.id);
     },
   );
-
-  socket.on('delete', async (id: string, callback: () => void) => {
-    guild?.channels.cache.get(id)?.delete();
-    callback();
-  });
 
   socket.on('like', async (message, callback: () => void) => {
     console.log('New like', message.id);
@@ -105,8 +111,8 @@ io.on('connection', (socket) => {
     callback();
   });
 
-  socket.on('disconnect', () => {
-    console.log('Disconnected');
+  socket.on('disconnect', (e) => {
+    console.log('User disconnected', userId);
   });
 });
 

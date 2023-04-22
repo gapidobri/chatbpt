@@ -10,6 +10,8 @@
 	let selected = false;
 	$: selected = $page.url.pathname === `/${chat.id}`;
 
+	let renaming = false;
+
 	function handleDelete() {
 		deleteChat(chat.id);
 	}
@@ -23,7 +25,11 @@
 >
 	<ChatIcon />
 	<div class="flex-1 text-ellipsis max-h-5 overflow-hidden break-all relative">
-		{chat.name}
+		{#if renaming}
+			<input class="w-full bg-transparent text-white" type="text" value={chat.name} />
+		{:else}
+			{chat.name}
+		{/if}
 		{#if selected}
 			<div class="absolute inset-y-0 right-0 w-8 z-10 bg-gradient-to-l from-gray-800" />
 		{/if}
@@ -31,7 +37,7 @@
 
 	{#if selected}
 		<div class="absolute flex right-1 z-10 text-gray-300 visible">
-			<button class="p-1 hover:text-white">
+			<button on:click={() => (renaming = true)} class="p-1 hover:text-white">
 				<RenameIcon />
 			</button>
 			<button on:click={handleDelete} class="p-1 hover:text-white">

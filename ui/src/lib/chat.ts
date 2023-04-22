@@ -28,36 +28,37 @@ function getChats() {
 }
 
 export const chats = writable<Chat[]>(getChats());
-chats.subscribe((value) => saveChats(value));
+chats.subscribe(saveChats);
 
 export function createChat(content: string) {
 	socket.emit('create', content, (id: string) => {
 		chats.update((chats) => {
 			const message: Message = { type: 'user', content };
-			const chat = { id, name: content, messages: [message] };
-			return [...chats, chat];
+			chats.push({ id, name: content, messages: [message] });
+			return chats;
 		});
 		goto(`/${id}`);
 	});
 }
 
 export function deleteChat(id: string) {
-	socket.emit('delete', id, () => {
-		chats.update((chats) => chats.filter((chat) => chat.id !== id));
-		goto('/');
-	});
-}
-
-export function syncChats(chatIds: string[]) {
-	chats.update((chats) => chats.filter((c) => chatIds.includes(c.id)));
+	chats.update((chats) => chats.filter((chat) => chat.id !== id));
+	goto('/');
 }
 
 export function sendMessage(chatId: string, content: string) {
-	socket.emit('message', { chatId, content });
-	chats.update((chats) => {
-		const chat = chats.find((chat) => chat.id === chatId);
-		if (chat) chat.messages.push({ type: 'user', content });
-		return chats;
+	socket.emit('message', { chatId, content }, (newChatId: string) => {
+		chats.update((chats) => {
+			const chat = chats.find((chat) => chat.id === chatId);
+			if (chat) {
+				if (newChatId !== chatId) chat.id = newChatId;
+				chat.messages.push({ type: 'user', content });
+			}
+			return chats;
+		});
+		if (newChatId !== chatId) {
+			goto(`/${newChatId}`);
+		}
 	});
 }
 

@@ -6,6 +6,7 @@
 	import MenuIcon from '$lib/components/icons/MenuIcon.svelte';
 	import UserPicture from '$lib/components/UserPicture.svelte';
 	import { chats } from '$lib/chat';
+	import { userId } from '$lib/user';
 </script>
 
 <div class="h-screen">
@@ -51,7 +52,7 @@
 											</span>
 										</div>
 									</div>
-									<div class="grow text-left text-white">Your Mom</div>
+									<div class="grow text-left text-white">{$userId ?? ''}</div>
 									<MenuIcon />
 								</button>
 							</div>

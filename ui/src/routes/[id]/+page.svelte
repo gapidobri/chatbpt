@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { chats, type Message, sendMessage } from '$lib/chat';
 	import InputField from '$lib/components/InputField.svelte';
 	import BotResponse from '$lib/components/chat/BotResponse.svelte';
@@ -10,9 +11,12 @@
 
 	let messages: Message[];
 
-	chats.subscribe((chats) => {
+	$: chats.subscribe((chats) => {
 		const chat = chats.find((chat) => chat.id === data.id);
-		messages = chat?.messages ?? [];
+		if (!chat) {
+			return goto('/');
+		}
+		messages = chat.messages ?? [];
 	});
 
 	function handleSubmit(e: CustomEvent<string>) {
