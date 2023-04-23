@@ -28,9 +28,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - dockerfile: ./ui/Dockerfile
+          - dockerfile: ./ui
             image: ghcr.io/gapidobri/chatbpt-ui
-          - dockerfile: ./api/Dockerfile
+          - dockerfile: ./api
             image: ghcr.io/gapidobri/chatbpt-api
     permissions:
       contents: read
