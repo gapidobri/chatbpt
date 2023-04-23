@@ -50,7 +50,7 @@ jobs:
         with:
           context: ./ui
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: gapidobri/chatbpt-ui
           labels: ${{ steps.meta.outputs.labels }}
 
   build-api:
@@ -81,5 +81,5 @@ jobs:
         with:
           context: ./api
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: gapidobri/chatbpt-api
           labels: ${{ steps.meta.outputs.labels }}
