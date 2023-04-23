@@ -17,6 +17,9 @@ client.on('ready', () => {
   console.log('Discord bot ready');
 
   guild = client.guilds.cache.get(process.env.GUILD_ID ?? '') ?? null;
+
+  cleanupChannels();
+  setInterval(cleanupChannels, 1000 * 60);
 });
 
 client.on('messageCreate', (message) => {
@@ -50,9 +53,6 @@ client.on('messageCreate', (message) => {
 
 export function setupDiscordBot() {
   client.login(process.env.DISCORD_BOT_TOKEN);
-
-  cleanupChannels();
-  setInterval(cleanupChannels, 1000 * 60);
 }
 
 export function cleanupChannels() {

@@ -36,6 +36,13 @@ io.on('connection', (socket) => {
 
       let channel = client.channels.cache.get(chatId);
       if (!channel) {
+        const channelCount = guild?.channels.cache.filter(
+          (c) =>
+            c.type === ChannelType.GuildText &&
+            c.parentId === process.env.CATEGORY_ID,
+        ).size;
+        if (channelCount && channelCount >= 20) return;
+
         const name = content.trim().toLowerCase().replaceAll(' ', '-');
 
         channel = await guild?.channels.create({
@@ -43,7 +50,11 @@ io.on('connection', (socket) => {
           type: ChannelType.GuildText,
         });
 
-        await channel?.setParent(process.env.CATEGORY_ID ?? '');
+        try {
+          await channel?.setParent(process.env.CATEGORY_ID ?? '');
+        } catch (e) {
+          console.log('Failed to set parent');
+        }
       }
       if (!channel || !channel.isTextBased()) return;
 
@@ -68,6 +79,13 @@ io.on('connection', (socket) => {
       if (!userId) return;
       console.log('New chat created', message);
       if (message === '') message = 'Untitled';
+
+      const channelCount = guild?.channels.cache.filter(
+        (c) =>
+          c.type === ChannelType.GuildText &&
+          c.parentId === process.env.CATEGORY_ID,
+      ).size;
+      if (!channelCount || channelCount >= 20) return;
 
       const name = message.trim().toLowerCase().replaceAll(' ', '-');
 
