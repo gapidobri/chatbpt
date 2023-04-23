@@ -1,6 +1,6 @@
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { client, guild } from './discord';
+import { client, guild } from './discord.js';
 import { ChannelType } from 'discord.js';
 
 const bannedUsers = ['8c5asbryd8gqrmjojqkg9i'];

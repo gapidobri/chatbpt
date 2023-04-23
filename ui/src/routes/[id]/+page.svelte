@@ -10,15 +10,17 @@
 
 	export let data: PageData;
 
-	let messages: Message[];
+	let messages: Message[] = [];
 
-	$: chats.subscribe((chats) => {
-		const chat = chats.find((chat) => chat.id === data.id);
-		if (!chat) {
-			return goto('/');
-		}
-		messages = chat.messages ?? [];
-	});
+	$: if (browser) {
+		chats.subscribe((chats) => {
+			const chat = chats.find((chat) => chat.id === data.id);
+			if (!chat) {
+				return goto('/');
+			}
+			messages = chat.messages ?? [];
+		});
+	}
 
 	function handleSubmit(e: CustomEvent<string>) {
 		socket.emit('message', e.detail);

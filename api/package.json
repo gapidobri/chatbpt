@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --exec 'node --experimental-specifier-resolution=node --loader ts-node/esm' src/index.ts",
-    "start": "node --experimental-specifier-resolution=node --loader ts-node/esm src/index.ts"
+    "start": "node --experimental-specifier-resolution=node --loader ts-node/esm src/index.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
