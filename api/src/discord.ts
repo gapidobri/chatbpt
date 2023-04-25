@@ -11,12 +11,17 @@ export const client = new Client({
   ],
 });
 
-export let guild: Guild | null = null;
+export let guild: Guild;
 
 client.on('ready', () => {
   console.log('Discord bot ready');
 
-  guild = client.guilds.cache.get(process.env.GUILD_ID ?? '') ?? null;
+  const g = client.guilds.cache.get(process.env.GUILD_ID ?? '');
+  if (!g) {
+    console.log('Failed to get guild');
+    return;
+  }
+  guild = g;
 
   cleanupChannels();
   setInterval(cleanupChannels, 1000 * 60);

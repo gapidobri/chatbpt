@@ -36,25 +36,26 @@ io.on('connection', (socket) => {
 
       let channel = client.channels.cache.get(chatId);
       if (!channel) {
-        const channelCount = guild?.channels.cache.filter(
+        const channelCount = guild.channels.cache.filter(
           (c) =>
             c.type === ChannelType.GuildText &&
             c.parentId === process.env.CATEGORY_ID,
         ).size;
-        if (channelCount && channelCount >= 20) return;
+        if (channelCount >= 20) {
+          console.log('Too many channels');
+          return;
+        }
 
         const name = content.trim().toLowerCase().replaceAll(' ', '-');
 
-        channel = await guild?.channels.create({
+        channel = await guild.channels.create({
           name,
           type: ChannelType.GuildText,
         });
 
-        try {
-          await channel?.setParent(process.env.CATEGORY_ID ?? '');
-        } catch (e) {
-          console.log('Failed to set parent');
-        }
+        await channel
+          ?.setParent(process.env.CATEGORY_ID ?? '')
+          .catch((e) => console.log('Failed to set parent'));
       }
       if (!channel || !channel.isTextBased()) return;
 
@@ -66,7 +67,7 @@ io.on('connection', (socket) => {
         content = 'Empty message';
       }
 
-      channel.send(content);
+      await channel.send(content);
       if (callback) {
         callback(channel.id);
       }
@@ -80,23 +81,38 @@ io.on('connection', (socket) => {
       console.log('New chat created', message);
       if (message === '') message = 'Untitled';
 
-      const channelCount = guild?.channels.cache.filter(
+      const channelCount = guild.channels.cache.filter(
         (c) =>
           c.type === ChannelType.GuildText &&
           c.parentId === process.env.CATEGORY_ID,
       ).size;
-      if (!channelCount || channelCount >= 20) return;
+      if (channelCount >= 20) {
+        console.log('Too many channels');
+        return;
+      }
 
       const name = message.trim().toLowerCase().replaceAll(' ', '-');
 
-      const channel = await guild?.channels.create({
-        name,
-        type: ChannelType.GuildText,
-      });
-      if (!channel) return;
+      const channel = await guild.channels
+        .create({
+          name,
+          type: ChannelType.GuildText,
+        })
+        .catch((e) => console.log('Failed to create channel', e));
+      if (!channel) {
+        return;
+      }
 
-      await channel.setParent(process.env.CATEGORY_ID ?? '');
-      await channel.send(message);
+      if (userId) {
+        userChatMap[userId].add(channel.id);
+      }
+
+      await channel
+        .setParent(process.env.CATEGORY_ID ?? '')
+        .catch((e) => console.log('Failed to set parent', e));
+      await channel
+        .send(message)
+        .catch((e) => console.log('Failed to send', e));
       if (callback) {
         callback(channel.id);
       }
@@ -107,7 +123,7 @@ io.on('connection', (socket) => {
     console.log('New like', message.id);
     if (!message.id) return;
 
-    const channel = guild?.channels.cache.get(message.chatId);
+    const channel = guild.channels.cache.get(message.chatId);
     if (!channel || !channel.isTextBased()) return;
 
     const discMsg = await channel.messages.fetch(message.id);
@@ -121,7 +137,7 @@ io.on('connection', (socket) => {
     console.log('New dislike', message.id);
     if (!message.id) return;
 
-    const channel = guild?.channels.cache.get(message.chatId);
+    const channel = guild.channels.cache.get(message.chatId);
     if (!channel || !channel.isTextBased()) return;
 
     const discMsg = await channel.messages.fetch(message.id);
